@@ -5,11 +5,19 @@ import org.zelo.ast.Pattern;
 import org.zelo.ast.type.Type;
 
 public class TypedArgument extends Pattern {
-    private final Type visit;
+    private final Type type;
     private final Name name;
 
     public TypedArgument(Type visit, Name name) {
-        this.visit = visit;
+        this.type = visit;
         this.name = name;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public Name getName() {
+        return name;
     }
 }

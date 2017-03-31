@@ -4,8 +4,12 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.zelo.ast.expression.Call;
+import org.zelo.ast.expression.Composition;
+import org.zelo.ast.expression.NativeCall;
 import org.zelo.ast.expression.literal.*;
 import org.zelo.ast.function.LiteralPattern;
+import org.zelo.ast.function.essential.Essential;
 import org.zelo.ast.function.Signature;
 import org.zelo.ast.function.TypedArgument;
 import org.zelo.ast.module.Declaration;
@@ -128,7 +132,7 @@ public class ASTBuilder extends ZeloBaseVisitor<Node> implements ZeloVisitor<Nod
     private Signature visitSignature(ZeloParser.PatternsContext patternsContext) {
         List<Pattern> patterns = new ArrayList<>();
 
-        patternsContext.pattern().forEach(patternContext -> patterns.add((Pattern) visit(patternContext)));
+        patternsContext.patternList.forEach(patternContext -> patterns.add((Pattern) visit(patternContext)));
 
         return hydrateSourceLocation(new Signature(patterns), patternsContext);
     }
@@ -173,88 +177,31 @@ public class ASTBuilder extends ZeloBaseVisitor<Node> implements ZeloVisitor<Nod
     }
 
     @Override
-    public Node visitIdentifier(ZeloParser.IdentifierContext ctx) {
-        return null;
+    public Call visitCall(ZeloParser.CallContext ctx) {
+        List<Expression> arguments = new ArrayList<>();
+
+        ctx.args.forEach(arg -> arguments.add((Expression) visit(arg)));
+
+        return hydrateSourceLocation(new Call((Expression) visit(ctx.caller), arguments), ctx);
     }
 
     @Override
-    public Node visitNegation(ZeloParser.NegationContext ctx) {
-        return null;
+    public Composition visitComposition(ZeloParser.CompositionContext ctx) {
+        return hydrateSourceLocation(new Composition((Expression) visit(ctx.lhs), (Expression) visit(ctx.rhs)), ctx);
     }
 
     @Override
-    public Node visitSubtraction(ZeloParser.SubtractionContext ctx) {
-        return null;
+    public NativeCall visitNativeCall(ZeloParser.NativeCallContext ctx) {
+        List<Expression> arguments = new ArrayList<>();
+
+        ctx.args.forEach(arg -> arguments.add((Expression) visit(arg)));
+
+        return hydrateSourceLocation(new NativeCall((Essential) visit(ctx.nativeFunction()), arguments), ctx);
     }
 
     @Override
-    public Node visitIncrement(ZeloParser.IncrementContext ctx) {
-        return null;
-    }
-
-    @Override
-    public Node visitNotEqual(ZeloParser.NotEqualContext ctx) {
-        return null;
-    }
-
-    @Override
-    public Node visitLogicalAnd(ZeloParser.LogicalAndContext ctx) {
-        return null;
-    }
-
-    @Override
-    public Node visitLowerThan(ZeloParser.LowerThanContext ctx) {
-        return null;
-    }
-
-    @Override
-    public Node visitGreaterThanOrEqual(ZeloParser.GreaterThanOrEqualContext ctx) {
-        return null;
-    }
-
-    @Override
-    public Node visitDivision(ZeloParser.DivisionContext ctx) {
-        return null;
-    }
-
-    @Override
-    public Node visitCall(ZeloParser.CallContext ctx) {
-        return null;
-    }
-
-    @Override
-    public Node visitComposition(ZeloParser.CompositionContext ctx) {
-        return null;
-    }
-
-    @Override
-    public Node visitDecrement(ZeloParser.DecrementContext ctx) {
-        return null;
-    }
-
-    @Override
-    public Node visitEquals(ZeloParser.EqualsContext ctx) {
-        return null;
-    }
-
-    @Override
-    public Node visitLowerThanOrEqual(ZeloParser.LowerThanOrEqualContext ctx) {
-        return null;
-    }
-
-    @Override
-    public Node visitMultiplication(ZeloParser.MultiplicationContext ctx) {
-        return null;
-    }
-
-    @Override
-    public Node visitLiteralExpression(ZeloParser.LiteralExpressionContext ctx) {
-        return null;
-    }
-
-    @Override
-    public Node visitLogicalOr(ZeloParser.LogicalOrContext ctx) {
-        return null;
+    public Literal visitLiteralExpression(ZeloParser.LiteralExpressionContext ctx) {
+        return (Literal) visit(ctx.literal());
     }
 
     @Override
@@ -263,32 +210,22 @@ public class ASTBuilder extends ZeloBaseVisitor<Node> implements ZeloVisitor<Nod
     }
 
     @Override
-    public Node visitAddition(ZeloParser.AdditionContext ctx) {
-        return null;
-    }
-
-    @Override
-    public Node visitGreaterThan(ZeloParser.GreaterThanContext ctx) {
-        return null;
-    }
-
-    @Override
     public StringType visitTypeString(ZeloParser.TypeStringContext ctx) {
-        return new StringType();
+        return hydrateSourceLocation(new StringType(), ctx);
     }
 
     @Override
     public IntegerType visitTypeInteger(ZeloParser.TypeIntegerContext ctx) {
-        return new IntegerType();
+        return hydrateSourceLocation(new IntegerType(), ctx);
     }
 
     @Override
     public RealType visitTypeReal(ZeloParser.TypeRealContext ctx) {
-        return new RealType();
+        return hydrateSourceLocation(new RealType(), ctx);
     }
 
     @Override
     public BooleanType visitTypeBoolean(ZeloParser.TypeBooleanContext ctx) {
-        return new BooleanType();
+        return hydrateSourceLocation(new BooleanType(), ctx);
     }
 }

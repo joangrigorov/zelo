@@ -11,4 +11,8 @@ public class Signature extends Node {
     public Signature(List<Pattern> patterns) {
         this.patterns = patterns;
     }
+
+    public List<Pattern> getPatterns() {
+        return patterns;
+    }
 }

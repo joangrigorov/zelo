@@ -9,4 +9,8 @@ public class LiteralPattern extends Pattern {
     public LiteralPattern(Literal literal) {
         this.literal = literal;
     }
+
+    public Literal getLiteral() {
+        return literal;
+    }
 }

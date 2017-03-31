@@ -12,4 +12,8 @@ public class Declaration extends Node {
         this.signature = signature;
         this.body = body;
     }
+
+    public Signature getSignature() {
+        return signature;
+    }
 }

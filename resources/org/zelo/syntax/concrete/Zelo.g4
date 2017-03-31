@@ -46,26 +46,30 @@ literal
     ;
 
 expression
-    : literal                        #literalExpression
-    | NAME                           #identifier
-    | expression expression+         #call
-    | expression '.' expression      #composition
-    | '(' expression ')'             #group
-    | '!' expression                 #negation
-    | '+' expression expression      #addition
-    | '-' expression expression      #subtraction
-    | '++' expression                #increment
-    | '--' expression                #decrement
-    | '*' expression expression      #multiplication
-    | '/' expression expression      #division
-    | '>' expression expression      #greaterThan
-    | '<' expression expression      #lowerThan
-    | '==' expression expression     #equals
-    | '!=' expression expression     #notEqual
-    | '<=' expression expression     #lowerThanOrEqual
-    | '>=' expression expression     #greaterThanOrEqual
-    | '&&' expression expression     #logicalAnd
-    | '||' expression expression     #logicalOr
+    : literal                               #literalExpression
+    | NAME                                  #identifier
+    | nativeFunction args+=expression+            #nativeCall
+    | caller=expression args+=expression+   #call
+    | lhs=expression '.' rhs=expression     #composition
+    | '(' expression ')'                    #group
+    ;
+
+nativeFunction
+    : '!'   #negation
+    | '+'   #addition
+    | '-'   #subtraction
+    | '++'  #increment
+    | '--'  #decrement
+    | '*'   #multiplication
+    | '/'   #division
+    | '>'   #greaterThan
+    | '<'   #lowerThan
+    | '=='  #equal
+    | '!='  #notEqual
+    | '<='  #lowerThanOrEqual
+    | '>='  #greaterThanOrEqual
+    | '&&'  #logicalAnd
+    | '||'  #logicalOr
     ;
 
 type
@@ -85,7 +89,7 @@ FLOAT: [0-9]+ '.' [0-9]+;
 STRING : '"' (ESCAPE_QUOTE | ~ ["\\])* '"';
 TRUE: 'вярно' | 'да';
 FALSE: 'не' | 'невярно';
-NAME: [а-яА-Я]+;
+NAME: [а-яА-Я][а-яА-Я0-9]*;
 
 WS:  [ \t\r\n\u000C]+ -> skip;
 
