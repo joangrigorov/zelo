@@ -1,4 +1,4 @@
-package org.zelo.ast;
+package org.zelo.ast.util;
 
 public class StringUnquoter {
     public static String unquoteString(String text) {

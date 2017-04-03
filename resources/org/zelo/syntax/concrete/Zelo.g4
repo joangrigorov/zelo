@@ -1,7 +1,8 @@
 grammar Zelo;
 
 module
-    : 'модул' qualifiedName exports? use* function*
+    : 'модул' qualifiedName use* function*         #moduleWithoutExports
+    | 'модул' qualifiedName exports use* function* #moduleWithExports
     ;
 
 exports
@@ -46,16 +47,16 @@ literal
     ;
 
 expression
-    : literal                               #literalExpression
-    | NAME                                  #identifier
-    | nativeFunction args+=expression+            #nativeCall
-    | caller=expression args+=expression+   #call
-    | lhs=expression '.' rhs=expression     #composition
-    | '(' expression ')'                    #group
+    : literal                                             #literalExpression
+    | NAME                                                #symbol
+    | '(' nativeFunction args+=expression+ ')'            #nativeCall
+    | '(' caller=expression args+=expression+ ')'         #call
+    | lhs=expression '.' rhs=expression                   #composition
     ;
 
 nativeFunction
-    : '!'   #negation
+    : '!='  #notEqual
+    | '!'   #negation
     | '+'   #addition
     | '-'   #subtraction
     | '++'  #increment
@@ -65,7 +66,6 @@ nativeFunction
     | '>'   #greaterThan
     | '<'   #lowerThan
     | '=='  #equal
-    | '!='  #notEqual
     | '<='  #lowerThanOrEqual
     | '>='  #greaterThanOrEqual
     | '&&'  #logicalAnd
@@ -87,7 +87,7 @@ TYPE_BOOLEAN: 'булев' | 'булево' | 'булева' | 'булеви';
 INTEGER: [0-9]+;
 FLOAT: [0-9]+ '.' [0-9]+;
 STRING : '"' (ESCAPE_QUOTE | ~ ["\\])* '"';
-TRUE: 'вярно' | 'да';
+TRUE: 'да' | 'вярно';
 FALSE: 'не' | 'невярно';
 NAME: [а-яА-Я][а-яА-Я0-9]*;
 

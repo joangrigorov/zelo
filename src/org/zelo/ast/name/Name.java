@@ -1,4 +1,6 @@
-package org.zelo.ast;
+package org.zelo.ast.name;
+
+import org.zelo.ast.Node;
 
 public class Name extends Node {
     private final String id;

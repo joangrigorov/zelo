@@ -1,7 +1,5 @@
 package org.zelo.ast.expression;
 
-import org.zelo.ast.Expression;
-
 public class Composition extends Expression {
     private final Expression left;
     private final Expression right;

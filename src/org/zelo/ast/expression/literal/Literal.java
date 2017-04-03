@@ -1,6 +1,6 @@
 package org.zelo.ast.expression.literal;
 
-import org.zelo.ast.Expression;
+import org.zelo.ast.expression.Expression;
 
-public class Literal extends Expression {
+public abstract class Literal extends Expression {
 }

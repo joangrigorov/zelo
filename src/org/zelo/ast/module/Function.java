@@ -1,20 +1,18 @@
 package org.zelo.ast.module;
 
-import org.zelo.ast.Name;
+import org.zelo.ast.name.Name;
 import org.zelo.ast.Node;
 import org.zelo.ast.type.Type;
-
-import java.util.List;
 
 public class Function extends Node {
     private final Type type;
     private final Name name;
-    private final List<Declaration> declarations;
+    private final DeclarationList declarationList;
 
-    public Function(Type type, Name name, List<Declaration> declarations) {
+    public Function(Type type, Name name, DeclarationList declarationList) {
         this.type = type;
         this.name = name;
-        this.declarations = declarations;
+        this.declarationList = declarationList;
     }
 
     public Name getName() {
@@ -25,7 +23,7 @@ public class Function extends Node {
         return type;
     }
 
-    public List<Declaration> getDeclarations() {
-        return declarations;
+    public DeclarationList getDeclarations() {
+        return declarationList;
     }
 }
