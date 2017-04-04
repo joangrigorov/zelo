@@ -22,7 +22,8 @@ qualifiedName
     ;
 
 function
-    : type name=NAME ':' declarations+=declaration (',' declarations+=declaration)* '.'
+    : type name=NAME ':' declarations+=declaration (',' declarations+=declaration)* '.' #typedFunction
+    | name=NAME ':' declarations+=declaration (',' declarations+=declaration)* '.'      #untypedFunction
     ;
 
 declaration
@@ -49,8 +50,8 @@ literal
 expression
     : literal                                             #literalExpression
     | NAME                                                #symbol
-    | '(' nativeFunction args+=expression+ ')'            #nativeCall
-    | '(' caller=expression args+=expression+ ')'         #call
+    | '(' nativeFunction args+=expression+ ')'            #callNative
+    | '(' caller=expression args+=expression+ ')'         #callDefined
     | lhs=expression '.' rhs=expression                   #composition
     ;
 

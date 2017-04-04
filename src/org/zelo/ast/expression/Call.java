@@ -12,4 +12,8 @@ public class Call extends Expression {
     public Expression getCaller() {
         return caller;
     }
+
+    public ExpressionList getArguments() {
+        return arguments;
+    }
 }

@@ -12,9 +12,10 @@ import org.zelo.ast.expression.literal.StringLiteral;
 import org.zelo.ast.function.LiteralPattern;
 import org.zelo.ast.function.Pattern;
 import org.zelo.ast.function.TypedArgument;
-import org.zelo.ast.function.essential.*;
+import org.zelo.ast.expression.essential_functions.*;
 import org.zelo.ast.module.Declaration;
 import org.zelo.ast.module.Function;
+import org.zelo.ast.module.TypedFunction;
 import org.zelo.ast.module.Module;
 import org.zelo.ast.name.Name;
 import org.zelo.ast.name.QualifiedName;
@@ -101,8 +102,9 @@ public class ASTBuilderTest {
     public void shouldBuildModuleWithFunctionTestingType() throws IOException {
         String actualCode = "модул Тест цял фибоначи : цял н -> (+ н 1) .";
         Module actualModule = new ASTBuilder().buildAST(actualCode);
+        TypedFunction actualFunction = (TypedFunction) actualModule.getFunctions().iterator().next();
 
-        assertTrue(actualModule.getFunctions().iterator().next().getType() instanceof IntegerType);
+        assertTrue(actualFunction.getType() instanceof IntegerType);
     }
 
     @Test
@@ -125,8 +127,8 @@ public class ASTBuilderTest {
     public void shouldBuildModuleWithFunctionTestingDeclarationArgument() throws IOException {
         String actualCode = "модул Тест цял фибоначи : цял н -> (+ н 1) .";
         Module actualModule = new ASTBuilder().buildAST(actualCode);
-        Function actualFunction = actualModule.getFunctions().iterator().next();
-        Declaration actualDeclaration = actualFunction.getDeclarations().iterator().next();
+        TypedFunction actualTypedFunction = (TypedFunction) actualModule.getFunctions().iterator().next();
+        Declaration actualDeclaration = actualTypedFunction.getDeclarations().iterator().next();
         TypedArgument actualTypedArgument = (TypedArgument) actualDeclaration.getSignature().iterator().next();
 
         assertSame(1, actualDeclaration.getSignature().size());
@@ -138,8 +140,8 @@ public class ASTBuilderTest {
     public void shouldBuildModuleWithFunctionTestingWithTwoArguments() throws IOException {
         String actualCode = "модул Тест цял фибоначи : цял н, реален стринг -> (+ н 1) .";
         Module actualModule = new ASTBuilder().buildAST(actualCode);
-        Function actualFunction = actualModule.getFunctions().iterator().next();
-        Declaration actualDeclaration = actualFunction.getDeclarations().iterator().next();
+        TypedFunction actualTypedFunction = (TypedFunction) actualModule.getFunctions().iterator().next();
+        Declaration actualDeclaration = actualTypedFunction.getDeclarations().iterator().next();
         Iterator<Pattern> patternIterator = actualDeclaration.getSignature().iterator();
         patternIterator.next();
         TypedArgument actualStringTypedArgument = (TypedArgument) patternIterator.next();
@@ -153,8 +155,8 @@ public class ASTBuilderTest {
     public void shouldBuildModuleWithFunctionTestingAllScalarTypesAsArguments() throws IOException {
         String actualCode = "модул Тест цял фибоначи : цял н, реален н2, низ н3, булев н4 -> (+ н 1) .";
         Module actualModule = new ASTBuilder().buildAST(actualCode);
-        Function actualFunction = actualModule.getFunctions().iterator().next();
-        Declaration actualDeclaration = actualFunction.getDeclarations().iterator().next();
+        TypedFunction actualTypedFunction = (TypedFunction) actualModule.getFunctions().iterator().next();
+        Declaration actualDeclaration = actualTypedFunction.getDeclarations().iterator().next();
         Iterator<Pattern> actualArguments = actualDeclaration.getSignature().iterator();
 
         assertTrue(((TypedArgument) actualArguments.next()).getType() instanceof IntegerType);
@@ -167,8 +169,8 @@ public class ASTBuilderTest {
     public void shouldBuildModuleWithFunctionTestingAllLiteralsAsArguments() throws IOException {
         String actualCode = "модул Тест цял фибоначи : 13, 4.3, \"string\", да -> (+ н 1) .";
         Module actualModule = new ASTBuilder().buildAST(actualCode);
-        Function actualFunction = actualModule.getFunctions().iterator().next();
-        Declaration actualDeclaration = actualFunction.getDeclarations().iterator().next();
+        TypedFunction actualTypedFunction = (TypedFunction) actualModule.getFunctions().iterator().next();
+        Declaration actualDeclaration = actualTypedFunction.getDeclarations().iterator().next();
         Iterator<Pattern> actualArguments = actualDeclaration.getSignature().iterator();
 
         assertTrue(((LiteralPattern) actualArguments.next()).getLiteral() instanceof IntegerLiteral);
@@ -199,8 +201,8 @@ public class ASTBuilderTest {
                 ".";
 
         Module actualModule = new ASTBuilder().buildAST(actualCode);
-        Function actualFunction = actualModule.getFunctions().iterator().next();
-        Iterator<Declaration> declarationIterator = actualFunction.getDeclarations().iterator();
+        TypedFunction actualTypedFunction = (TypedFunction) actualModule.getFunctions().iterator().next();
+        Iterator<Declaration> declarationIterator = actualTypedFunction.getDeclarations().iterator();
 
         assertNativeFunction(declarationIterator.next().getBody(), Negation.class);
         assertNativeFunction(declarationIterator.next().getBody(), Addition.class);
@@ -222,15 +224,15 @@ public class ASTBuilderTest {
     }
 
     private <T> void assertNativeFunction(Expression actualExpression, Class<T> expectedNativeFunction) {
-        assertTrue(expectedNativeFunction.isInstance(((NativeCall) actualExpression).getNativeFunction()));
+        assertTrue(expectedNativeFunction.isInstance(((NativeCall) actualExpression).getCaller()));
     }
 
     @Test
     public void shouldBuildModuleWithFunctionUsingParameter() throws IOException {
         String actualCode = "модул Тест цял фибоначи : цяла число -> (+ число 1) .";
         Module actualModule = new ASTBuilder().buildAST(actualCode);
-        Function actualFunction = actualModule.getFunctions().iterator().next();
-        Declaration actualDeclaration = actualFunction.getDeclarations().iterator().next();
+        TypedFunction actualTypedFunction = (TypedFunction) actualModule.getFunctions().iterator().next();
+        Declaration actualDeclaration = actualTypedFunction.getDeclarations().iterator().next();
         Iterator<Expression> expressionIterator = ((NativeCall) actualDeclaration.getBody()).getArguments().iterator();
         Expression actualArgument = expressionIterator.next();
 
@@ -242,11 +244,20 @@ public class ASTBuilderTest {
     public void shouldBuildModuleWithCustomNonNativeFunction() throws IOException {
         String actualCode = "модул Тест цял фибоначи : цяла число -> (функция число 1) .";
         Module actualModule = new ASTBuilder().buildAST(actualCode);
-        Function actualFunction = actualModule.getFunctions().iterator().next();
-        Declaration actualDeclaration = actualFunction.getDeclarations().iterator().next();
+        TypedFunction actualTypedFunction = (TypedFunction) actualModule.getFunctions().iterator().next();
+        Declaration actualDeclaration = actualTypedFunction.getDeclarations().iterator().next();
         Call actualDeclarationBody = (Call) actualDeclaration.getBody();
 
         assertTrue(actualDeclarationBody.getCaller() instanceof Symbol);
         assertEquals("функция", ((Symbol) actualDeclarationBody.getCaller()).getName().toString());
+    }
+
+    @Test
+    public void shouldBuildModuleWithUntypedFunction() throws IOException {
+        String actualCode = "модул Тест фибоначи : цяло число -> (функция число 1) .";
+        Module actualModule = new ASTBuilder().buildAST(actualCode);
+        Function actualFunction = actualModule.getFunctions().iterator().next();
+
+        assertEquals(Function.class, actualFunction.getClass());
     }
 }

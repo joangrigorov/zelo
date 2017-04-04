@@ -7,7 +7,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import org.zelo.ast.expression.*;
 import org.zelo.ast.expression.literal.*;
 import org.zelo.ast.function.*;
-import org.zelo.ast.function.essential.*;
+import org.zelo.ast.expression.essential_functions.*;
 import org.zelo.ast.module.*;
 import org.zelo.ast.name.Name;
 import org.zelo.ast.name.Names;
@@ -74,7 +74,7 @@ public class ASTBuilder extends ZeloBaseVisitor<Node> implements ZeloVisitor<Nod
     private FunctionList visitFunctions(List<ZeloParser.FunctionContext> functionContexts) {
         List<Function> functions = new ArrayList<>();
 
-        functionContexts.forEach(functionContext -> functions.add(visitFunction(functionContext)));
+        functionContexts.forEach(functionContext -> functions.add((Function) visit(functionContext)));
 
         return new FunctionList(functions);
     }
@@ -114,15 +114,6 @@ public class ASTBuilder extends ZeloBaseVisitor<Node> implements ZeloVisitor<Nod
         List<Name> names = new ArrayList<>();
         parts.forEach(name -> names.add(visitName(name)));
         return new Names(names);
-    }
-
-    @Override
-    public Function visitFunction(ZeloParser.FunctionContext ctx) {
-        return hydrateSourceLocation(new Function(
-            (Type) visit(ctx.type()),
-            visitName(ctx.name),
-            visitDeclarations(ctx.declarations)
-        ), ctx);
     }
 
     private DeclarationList visitDeclarations(List<ZeloParser.DeclarationContext> declarationContexts) {
@@ -187,7 +178,7 @@ public class ASTBuilder extends ZeloBaseVisitor<Node> implements ZeloVisitor<Nod
     }
 
     @Override
-    public Call visitCall(ZeloParser.CallContext ctx) {
+    public Call visitCallDefined(ZeloParser.CallDefinedContext ctx) {
         List<Expression> argumentList = new ArrayList<>();
 
         ctx.args.forEach(arg -> argumentList.add((Expression) visit(arg)));
@@ -203,14 +194,31 @@ public class ASTBuilder extends ZeloBaseVisitor<Node> implements ZeloVisitor<Nod
     }
 
     @Override
-    public NativeCall visitNativeCall(ZeloParser.NativeCallContext ctx) {
+    public NativeCall visitCallNative(ZeloParser.CallNativeContext ctx) {
         List<Expression> arguments = new ArrayList<>();
 
         ctx.args.forEach(arg -> arguments.add((Expression) visit(arg)));
 
         return hydrateSourceLocation(new NativeCall(
-                (Essential) visit(ctx.nativeFunction()),
-                new ExpressionList(arguments)
+            (Essential) visit(ctx.nativeFunction()),
+            new ExpressionList(arguments)
+        ), ctx);
+    }
+
+    @Override
+    public Function visitUntypedFunction(ZeloParser.UntypedFunctionContext ctx) {
+        return hydrateSourceLocation(new Function(
+            visitName(ctx.name),
+            visitDeclarations(ctx.declarations)
+        ), ctx);
+    }
+
+    @Override
+    public TypedFunction visitTypedFunction(ZeloParser.TypedFunctionContext ctx) {
+        return hydrateSourceLocation(new TypedFunction(
+            (Type) visit(ctx.type()),
+            visitName(ctx.name),
+            visitDeclarations(ctx.declarations)
         ), ctx);
     }
 

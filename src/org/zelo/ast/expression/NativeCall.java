@@ -1,21 +1,9 @@
 package org.zelo.ast.expression;
 
-import org.zelo.ast.function.essential.Essential;
+import org.zelo.ast.expression.essential_functions.Essential;
 
-public class NativeCall extends Expression {
-    private final Essential nativeFunction;
-    private final ExpressionList arguments;
-
-    public NativeCall(Essential nativeFunction, ExpressionList arguments) {
-        this.nativeFunction = nativeFunction;
-        this.arguments = arguments;
-    }
-
-    public Essential getNativeFunction() {
-        return nativeFunction;
-    }
-
-    public ExpressionList getArguments() {
-        return arguments;
+public class NativeCall extends Call {
+    public NativeCall(Essential caller, ExpressionList arguments) {
+        super(caller, arguments);
     }
 }

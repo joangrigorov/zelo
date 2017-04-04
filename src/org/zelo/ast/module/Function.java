@@ -1,26 +1,19 @@
 package org.zelo.ast.module;
 
-import org.zelo.ast.name.Name;
 import org.zelo.ast.Node;
-import org.zelo.ast.type.Type;
+import org.zelo.ast.name.Name;
 
 public class Function extends Node {
-    private final Type type;
     private final Name name;
     private final DeclarationList declarationList;
 
-    public Function(Type type, Name name, DeclarationList declarationList) {
-        this.type = type;
-        this.name = name;
+    public Function(Name name, DeclarationList declarationList) {
         this.declarationList = declarationList;
+        this.name = name;
     }
 
     public Name getName() {
         return name;
-    }
-
-    public Type getType() {
-        return type;
     }
 
     public DeclarationList getDeclarations() {
